@@ -1,0 +1,10 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "matt",
+  "password": "SuperParamiko42",
+  "database": "dringo",
+  "entities": ["dist/**/*.entity{.ts,.js}"],
+  "synchronize": true
+}

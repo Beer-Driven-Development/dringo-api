@@ -2,9 +2,9 @@
   "type": "postgres",
   "host": "localhost",
   "port": 5432,
-  "username": "matt",
+  "username": "eveline",
   "password": "SuperParamiko42",
   "database": "dringo",
   "entities": ["dist/**/*.entity{.ts,.js}"],
-  "synchronize": true
+  "synchronize": false
 }

@@ -34,10 +34,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const user = await this.usersRepository.findOne({
-      where: { email: email },
-    });
-
     const payload = { email };
     const accessToken = this.jwtService.sign(payload);
     return accessToken;

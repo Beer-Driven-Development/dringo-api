@@ -60,10 +60,26 @@ export class AuthService {
       return 'No user from google';
     }
 
-    return {
-      message: 'User information from google',
-      user: req.user,
-    };
+    return req.user;
+  }
+
+  public async findOrCreate(profile): Promise<User> {
+    const user = await this.usersRepository.findOne({email: profile.email});
+
+    if (user)
+      return user;
+
+    let createdUser = new User();
+    createdUser.email = profile.email;
+    createdUser = await this.usersRepository.save(createdUser);
+
+    delete createdUser.password;
+    delete createdUser.salt;
+    delete createdUser.username;
+    delete createdUser.id;
+
+    return createdUser;
+
   }
 
   public async hashPassword(password: string, salt: string): Promise<string> {

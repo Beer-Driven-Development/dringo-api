@@ -18,15 +18,15 @@ export class User extends BaseEntity {
   @Column()
   email: string;
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
   @Exclude()
   password: string;
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
   @Exclude()
   salt: string;
 
-  @Column()
+  @Column({nullable: true})
   username: string;
 
   async validatePassword(password: string): Promise<boolean> {

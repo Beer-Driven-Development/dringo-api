@@ -57,11 +57,9 @@ export class AuthController {
 
   @Get("/facebook/redirect")
   @UseGuards(AuthGuard("facebook"))
+  @UseInterceptors(ClassSerializerInterceptor)
   async facebookLoginRedirect(@Req() req: Request, @GetUser() user): Promise<any> {
-    return {
-      statusCode: HttpStatus.OK,
-      data: user
-    };
+    return user;
   }
 
 

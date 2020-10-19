@@ -17,7 +17,7 @@ import { LocalStrategy } from './local.strategy';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: 'FESTIWALUSMIECHUPOTEZNEGOJOMAZA',
+      secret: process.env.SECRET,
       signOptions: { expiresIn: '7d' },
     }),
     TypeOrmModule.forFeature([User]),

@@ -46,13 +46,13 @@ export class AuthController {
     return this.authService.googleLogin(req);
   }
 
-  @Get('/facebook')
+  @Get('facebook')
   @UseGuards(AuthGuard('facebook'))
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
   }
 
-  @Get('/facebook/redirect')
+  @Get('facebook/redirect')
   @UseGuards(AuthGuard('facebook'))
   @UseInterceptors(ClassSerializerInterceptor)
   async facebookLoginRedirect(

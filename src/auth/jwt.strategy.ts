@@ -1,20 +1,38 @@
-import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport';
-import { ExtractJwt } from 'passport-jwt';
-import { jwtConstants } from './constants';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UnauthorizedException, Injectable } from '@nestjs/common';
+
+import { Connection, Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { JwtPayload } from './dto/jwt-payload.dto';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor() {
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    private connection: Connection,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.SECRET,
       ignoreExpiration: false,
-      secretOrKey: 'FESTIWALUSMIECHUPOTEZNEGOJOMAZA',
     });
   }
 
-  async validate(payload: any) {
-    return { id: payload.sub, username: payload.username };
+  async validate(payload: JwtPayload): Promise<User> {
+    const { email } = payload;
+    const user = await this.connection
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .getOne();
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return user;
   }
 }

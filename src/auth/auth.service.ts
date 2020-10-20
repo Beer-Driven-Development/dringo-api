@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -43,6 +48,9 @@ export class AuthService {
     let user = await this.usersRepository.findOne({
       email: createUserDto.email,
     });
+
+    if (user.username != null)
+      throw new BadRequestException('User already exists');
 
     if (user) {
       const salt = await bcrypt.genSalt();

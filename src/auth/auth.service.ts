@@ -40,19 +40,43 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUserDto): Promise<string> {
-    let user = new User();
-    user.email = createUserDto.email;
-    user.username = createUserDto.username;
-    const salt = await bcrypt.genSalt();
-    user.salt = salt;
-    user.password = await this.hashPassword(createUserDto.password, salt);
-
-    user = await this.usersRepository.save(user);
-    const token = await this.jwtService.signAsync({
-      email: user.email,
-      password: user.password,
+    let user = await this.usersRepository.findOne({
+      email: createUserDto.email,
     });
-    return token;
+
+    if (user) {
+      const salt = await bcrypt.genSalt();
+      user.salt = salt;
+      user.password = await this.hashPassword(createUserDto.password, salt);
+      user.username = createUserDto.username;
+
+      const updateResult = await this.usersRepository.update(
+        { email: user.email },
+        user,
+      );
+
+      const token = await this.jwtService.signAsync({
+        email: user.email,
+        password: user.password,
+      });
+
+      return token;
+    } else {
+      user = new User();
+
+      user.email = createUserDto.email;
+      user.username = createUserDto.username;
+      const salt = await bcrypt.genSalt();
+      user.salt = salt;
+      user.password = await this.hashPassword(createUserDto.password, salt);
+
+      user = await this.usersRepository.save(user);
+      const token = await this.jwtService.signAsync({
+        email: user.email,
+        password: user.password,
+      });
+      return token;
+    }
   }
 
   googleLogin(req) {
@@ -64,10 +88,9 @@ export class AuthService {
   }
 
   public async findOrCreate(profile): Promise<User> {
-    const user = await this.usersRepository.findOne({email: profile.email});
+    const user = await this.usersRepository.findOne({ email: profile.email });
 
-    if (user)
-      return user;
+    if (user) return user;
 
     let createdUser = new User();
     createdUser.email = profile.email;
@@ -79,7 +102,6 @@ export class AuthService {
     delete createdUser.id;
 
     return createdUser;
-
   }
 
   public async hashPassword(password: string, salt: string): Promise<string> {

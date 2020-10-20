@@ -21,9 +21,7 @@ import { GetUser } from 'src/users/user.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService,
-    
-    ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('login')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -38,30 +36,29 @@ export class AuthController {
     return await this.authService.register(createUserDto);
   }
 
-  @Get()
+  @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {}
 
-  @Get('redirect')
+  @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
   googleAuthRedirect(@Req() req) {
     return this.authService.googleLogin(req);
   }
 
- 
-  @Get("/facebook")
-  @UseGuards(AuthGuard("facebook"))
+  @Get('/facebook')
+  @UseGuards(AuthGuard('facebook'))
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
   }
 
-  @Get("/facebook/redirect")
-  @UseGuards(AuthGuard("facebook"))
+  @Get('/facebook/redirect')
+  @UseGuards(AuthGuard('facebook'))
   @UseInterceptors(ClassSerializerInterceptor)
-  async facebookLoginRedirect(@Req() req: Request, @GetUser() user): Promise<any> {
+  async facebookLoginRedirect(
+    @Req() req: Request,
+    @GetUser() user,
+  ): Promise<any> {
     return user;
   }
-
-
-
 }

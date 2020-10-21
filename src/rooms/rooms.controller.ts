@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../users/user.decorator';
@@ -13,5 +20,11 @@ export class RoomsController {
   @Post()
   public async create(@Body() createRoomDto: CreateRoomDto, @GetUser() user) {
     return await this.roomsService.create(createRoomDto, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Delete(':id')
+  public async delete(@Param('id') id: number, @GetUser() user) {
+    return await this.roomsService.delete(id, user);
   }
 }

@@ -18,6 +18,23 @@ export class Room {
   @Column()
   passcode: string;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    nullable: true,
+  })
+  startedAt: Date = null;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    nullable: true,
+  })
+  finishedAt: Date = null;
+
   @ManyToOne(
     type => User,
     user => user.id,

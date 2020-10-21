@@ -24,6 +24,7 @@ export class RoomsService {
     room.name = createRoomDto.name;
     room.passcode = createRoomDto.passcode;
     room.creator = creator;
+    room.createdAt = new Date();
 
     room = await this.roomsRepository.save(room);
 

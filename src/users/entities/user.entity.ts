@@ -39,7 +39,9 @@ export class User extends BaseEntity {
     const salt = query['user_salt'];
     const userPassword = query['user_password'];
     const hash = await bcrypt.hash(password, salt);
+    console.log(password);
     console.log(hash);
+    console.log(userPassword);
     console.log(hash === userPassword);
     return hash === userPassword;
   }

@@ -27,10 +27,8 @@ export class AuthController {
   @Post('login')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(LocalAuthGuard)
-  async login(
-    @Body(ValidationPipe) loginRequestDto: LoginRequestDto,
-  ): Promise<string> {
-    return await this.authService.login(loginRequestDto);
+  async login(@Request() req): Promise<string> {
+    return req.user;
   }
 
   @Post('register')

@@ -22,8 +22,8 @@ export class AuthService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOne(email);
     if (user && user.validatePassword(pass)) {
       const { password, ...result } = user;
       return result;
@@ -32,17 +32,8 @@ export class AuthService {
     return null;
   }
 
-  async login(loginRequestDto: LoginRequestDto) {
-    const email = await this.validatePassword(loginRequestDto);
-    console.log('login()');
-    console.log(email);
-    if (!email) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const payload = { email };
-    const accessToken = this.jwtService.sign(payload);
-    return accessToken;
+  async login(user: User) {
+    return this.jwtService.sign(user.email);
   }
 
   async register(createUserDto: CreateUserDto): Promise<string> {

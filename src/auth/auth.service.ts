@@ -11,7 +11,6 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
-import { LoginRequestDto } from './dto/login-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,8 +31,11 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
-    return this.jwtService.sign(user.email);
+  login(user: User): string {
+    const email = user.email;
+    const payload = { email };
+    const accessToken = this.jwtService.sign(payload);
+    return accessToken;
   }
 
   async register(createUserDto: CreateUserDto): Promise<string> {
@@ -106,18 +108,5 @@ export class AuthService {
 
   public async hashPassword(password: string, salt: string): Promise<string> {
     return await bcrypt.hash(password, salt);
-  }
-
-  async validatePassword(loginRequestDto: LoginRequestDto): Promise<string> {
-    const { email, password } = loginRequestDto;
-    console.log(email);
-    const user = await this.usersRepository.findOne({ email });
-
-    if (!user || !(await user.validatePassword(password))) {
-      return null;
-    }
-
-    console.log(user.email);
-    return user.email;
   }
 }

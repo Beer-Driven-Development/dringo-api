@@ -42,7 +42,6 @@ export class User extends BaseEntity {
       err,
       result,
     ) {
-      console.log(result);
       return result;
     });
 

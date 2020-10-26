@@ -1,12 +1,10 @@
-import {ConnectionOptions} from 'typeorm';
-
+import { ConnectionOptions } from 'typeorm';
 
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
 //const environment = process.env.NODE_ENV || 'development';
-const data: any = dotenv.parse(fs.readFileSync(".env"));
-
+const data: any = dotenv.parse(fs.readFileSync('.env'));
 
 // Check typeORM documentation for more information.
 const config: ConnectionOptions = {

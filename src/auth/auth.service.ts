@@ -119,6 +119,7 @@ export class AuthService {
 
   async validatePassword(loginRequestDto: LoginRequestDto): Promise<string> {
     const { email, password } = loginRequestDto;
+    console.log(email);
     const user = await this.usersRepository.findOne({ email });
 
     if (!user || !(await user.validatePassword(password))) {

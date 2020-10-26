@@ -4,16 +4,16 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
 //const environment = process.env.NODE_ENV || 'development';
-const data: any = dotenv.parse(fs.readFileSync('.env'));
+//const data: any = dotenv.parse(fs.readFileSync(".env"));
 
 // Check typeORM documentation for more information.
 const config: ConnectionOptions = {
-  type: data.DB_TYPE,
-  host: data.DB_HOST,
-  port: data.DB_PORT,
-  username: data.DB_USERNAME,
-  password: data.DB_PASSWORD,
-  database: data.DB_DATABASE,
+  type: process.env.DB_TYPE as any,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT as any,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
 
   // We are using migrations, synchronize should be set to false.

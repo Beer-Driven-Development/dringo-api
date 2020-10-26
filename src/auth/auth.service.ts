@@ -34,7 +34,8 @@ export class AuthService {
 
   async login(loginRequestDto: LoginRequestDto) {
     const email = await this.validatePassword(loginRequestDto);
-
+    console.log('login()');
+    console.log(email);
     if (!email) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -124,6 +125,7 @@ export class AuthService {
       return null;
     }
 
+    console.log(user.email);
     return user.email;
   }
 }

@@ -24,8 +24,8 @@ export class UsersService {
     return await this.usersRepository.findOne(id);
   }
 
-  async findOne(username: string) {
-    return await this.usersRepository.findOne(username);
+  async findOne(email: string) {
+    return await this.usersRepository.findOne({ email: email });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

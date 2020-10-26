@@ -18,6 +18,7 @@ import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { REQUEST } from '@nestjs/core';
 import { GetUser } from 'src/users/user.decorator';
+import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -25,6 +26,7 @@ export class AuthController {
 
   @Post('login')
   @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(LocalAuthGuard)
   async login(
     @Body(ValidationPipe) loginRequestDto: LoginRequestDto,
   ): Promise<string> {

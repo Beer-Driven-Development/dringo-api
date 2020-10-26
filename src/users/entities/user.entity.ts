@@ -26,7 +26,7 @@ export class User extends BaseEntity {
   @Exclude()
   salt: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   username: string;
 
   async validatePassword(password: string): Promise<boolean> {
@@ -35,7 +35,7 @@ export class User extends BaseEntity {
       .addSelect('user.password')
       .addSelect('user.salt')
       .getRawOne();
-
+    console.log(query);
     const salt = query['user_salt'];
     const userPassword = query['user_password'];
     const hash = await bcrypt.hash(password, salt);

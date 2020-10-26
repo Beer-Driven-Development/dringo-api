@@ -38,7 +38,13 @@ export class User extends BaseEntity {
 
     const salt = query['user_salt'];
     const userPassword = query['user_password'];
-    const isValid = await bcrypt.compare(password, userPassword);
+    const isValid = await bcrypt.compare(password, userPassword, function(
+      err,
+      result,
+    ) {
+      console.log(result);
+      return result;
+    });
 
     return isValid;
   }

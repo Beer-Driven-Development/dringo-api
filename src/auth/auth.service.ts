@@ -49,10 +49,10 @@ export class AuthService {
       email: createUserDto.email,
     });
 
-    if (user.username != null)
-      throw new BadRequestException('User already exists');
-
     if (user) {
+      if (user.username != null)
+        throw new BadRequestException('User already exists');
+
       const salt = await bcrypt.genSalt();
       user.salt = salt;
       user.password = await this.hashPassword(createUserDto.password, salt);

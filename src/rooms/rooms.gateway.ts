@@ -1,4 +1,4 @@
-import { Logger, Param } from '@nestjs/common';
+import { Logger, Param, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConnectedSocket,
@@ -11,10 +11,13 @@ import {
 } from '@nestjs/websockets';
 import { from, Observable } from 'rxjs';
 import { Server, Socket } from 'socket.io';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { User } from 'src/users/entities/user.entity';
+import { GetUser } from 'src/users/user.decorator';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: 'room' })
 export class RoomsGateway implements OnGatewayInit {
   constructor(
     @InjectRepository(Room) private roomsRepository: Repository<Room>,
@@ -32,8 +35,27 @@ export class RoomsGateway implements OnGatewayInit {
     return 'Hello world!';
   }
 
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
   async handleRoomJoin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+    @GetUser() user: User,
+  ) {
+    const currentRoom = await this.roomsRepository.findOne({ id: data[0].id });
+    console.log(data);
+
+    if (currentRoom) {
+      // client.join(currentRoom.id.toString());
+      this.broadcast(
+        'joinRoom',
+        `${user.username} has joined room ${currentRoom.name}`,
+      );
+    }
+  }
+
+  @SubscribeMessage('leaveRoom')
+  async handleRoomLeave(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ) {
@@ -42,9 +64,10 @@ export class RoomsGateway implements OnGatewayInit {
 
     if (currentRoom) {
       // client.join(currentRoom.id.toString());
-      client.send('joinedRoom', currentRoom.id);
+      client.leave('room');
     }
   }
+
   wsClients = [];
   private broadcast(event, message: any) {
     const broadCastMessage = JSON.stringify(message);

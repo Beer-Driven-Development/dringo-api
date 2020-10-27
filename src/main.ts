@@ -2,8 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
-import { RedisIoAdapter } from './redis.adapter';
-import { WsAdapter } from '@nestjs/platform-ws';
+import { WsAdapter } from '@nestjs/platform-ws/adapters/ws-adapter';
 
 dotenv.config();
 

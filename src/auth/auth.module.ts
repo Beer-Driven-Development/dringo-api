@@ -11,6 +11,7 @@ import { FacebookStrategy } from './facebook.strategy';
 import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { WsJwtGuard } from './ws-jwt-auth.guard';
 
 @Module({
   imports: [

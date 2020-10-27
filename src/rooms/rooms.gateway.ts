@@ -12,12 +12,13 @@ import {
 import { from, Observable } from 'rxjs';
 import { Server, Socket } from 'socket.io';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { WsJwtGuard } from 'src/auth/ws-jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { GetUser } from 'src/users/user.decorator';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 
-@WebSocketGateway({ namespace: 'room' })
+@WebSocketGateway()
 export class RoomsGateway implements OnGatewayInit {
   constructor(
     @InjectRepository(Room) private roomsRepository: Repository<Room>,
@@ -35,7 +36,7 @@ export class RoomsGateway implements OnGatewayInit {
     return 'Hello world!';
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(WsJwtGuard)
   @SubscribeMessage('joinRoom')
   async handleRoomJoin(
     @ConnectedSocket() client: Socket,

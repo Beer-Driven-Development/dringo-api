@@ -14,7 +14,7 @@ import { Server, Socket } from 'socket.io';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 
-@WebSocketGateway(3001)
+@WebSocketGateway()
 export class RoomsGateway implements OnGatewayInit {
   constructor(
     @InjectRepository(Room) private roomsRepository: Repository<Room>,

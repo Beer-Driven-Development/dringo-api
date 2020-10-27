@@ -10,6 +10,7 @@ import {
   Get,
   Req,
   HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -25,6 +26,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(200)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(LocalAuthGuard)
   login(@Request() req): string {

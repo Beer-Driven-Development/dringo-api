@@ -31,6 +31,10 @@ export class RoomsGateway implements OnGatewayInit {
   }
   @WebSocketServer() wss: Server;
 
+  async handleConnection() {
+    console.log('Someone connected!');
+  }
+
   @SubscribeMessage('message')
   handleMessage(client: Socket, @MessageBody() payload: string): string {
     return 'Hello world!';

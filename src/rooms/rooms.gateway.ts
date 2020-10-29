@@ -1,4 +1,4 @@
-import { Logger, Param, UseGuards } from '@nestjs/common';
+import { Logger, Param, Req, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConnectedSocket,
@@ -45,16 +45,17 @@ export class RoomsGateway implements OnGatewayInit {
   async handleRoomJoin(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
-    @GetUser() user: User,
   ) {
     const currentRoom = await this.roomsRepository.findOne({ id: data[0].id });
     console.log(data);
 
+    if (data.user) this.wsClients.push(client);
+
     if (currentRoom) {
+      client.send('joinedRoom');
       // client.join(currentRoom.id.toString());
       this.broadcast(
-        'joinRoom',
-        `${user.username} has joined room ${currentRoom.name}`,
+        `${data.user.username} has joined room ${currentRoom.name}`,
       );
     }
   }
@@ -65,7 +66,6 @@ export class RoomsGateway implements OnGatewayInit {
     @MessageBody() data: any,
   ) {
     const currentRoom = await this.roomsRepository.findOne({ id: data[0].id });
-    console.log(data);
 
     if (currentRoom) {
       // client.join(currentRoom.id.toString());
@@ -74,15 +74,9 @@ export class RoomsGateway implements OnGatewayInit {
   }
 
   wsClients = [];
-  private broadcast(event, message: any) {
-    const broadCastMessage = JSON.stringify(message);
+  private broadcast(message: string) {
     for (let c of this.wsClients) {
-      c.send(event, broadCastMessage);
+      c.send(message);
     }
-  }
-
-  @SubscribeMessage('my-event')
-  onChgEvent(client: any, payload: any) {
-    this.broadcast('my-event', payload);
   }
 }

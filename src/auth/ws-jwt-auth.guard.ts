@@ -26,7 +26,7 @@ export class WsJwtGuard implements CanActivate {
     const data = context.switchToWs().getData();
 
     const authToken = data[1].token;
-    const credentials: LoginRequestDto = <LoginRequestDto>(
+    const credentials: JwtPayload = <JwtPayload>(
       jwt.verify(authToken, process.env.SECRET)
     );
     const user = await this.connection

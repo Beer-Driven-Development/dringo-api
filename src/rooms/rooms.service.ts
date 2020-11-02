@@ -47,4 +47,10 @@ export class RoomsService {
     }
     return new DeleteResult();
   }
+
+  public async findAll() {
+    const rooms = await this.roomsRepository.find();
+
+    return rooms;
+  }
 }

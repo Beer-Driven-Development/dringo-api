@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   UseGuards,
@@ -26,5 +27,11 @@ export class RoomsController {
   @Delete(':id')
   public async delete(@Param('id') id: number, @GetUser() user) {
     return await this.roomsService.delete(id, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Get()
+  public async findAll() {
+    return await this.roomsService.findAll();
   }
 }

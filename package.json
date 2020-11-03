@@ -11,6 +11,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "postinstall": "npm run prestart:prod",
     "prestart:prod": "rimraf dist && npm run build",
+    "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config -n ./src/ormconfig.ts",
+    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed -n ./src/ormconfig.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -59,13 +61,15 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
     "socket.io-redis": "^5.4.0",
-    "typeorm": "^0.2.28"
+    "typeorm": "^0.2.28",
+    "typeorm-seeding": "^1.6.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",
     "@nestjs/schematics": "^7.0.0",
     "@nestjs/testing": "^7.0.0",
     "@types/express": "^4.17.3",
+    "@types/faker": "^5.1.4",
     "@types/jest": "25.2.3",
     "@types/node": "^13.9.1",
     "@types/passport-facebook-token": "^0.4.34",

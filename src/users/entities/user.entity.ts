@@ -7,7 +7,7 @@ import {
   Unique,
   getRepository,
 } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 
 @Entity()
 @Unique(['email', 'username'])
@@ -22,10 +22,6 @@ export class User extends BaseEntity {
   @Exclude()
   password: string;
 
-  @Column({ select: false, nullable: true })
-  @Exclude()
-  salt: string;
-
   @Column({ nullable: true })
   username: string;
 
@@ -33,12 +29,11 @@ export class User extends BaseEntity {
     const query = await getRepository(User)
       .createQueryBuilder('user')
       .addSelect('user.password')
-      .addSelect('user.salt')
       .getRawOne();
 
-    const salt = query['user_salt'];
     const userPassword = query['user_password'];
-    const isValid = await bcrypt.compare(password, userPassword);
+
+    const isValid = await argon2.verify(userPassword, password);
 
     return isValid;
   }

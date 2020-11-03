@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class AuthService {
@@ -47,9 +47,7 @@ export class AuthService {
       if (user.username != null)
         throw new BadRequestException('User already exists');
 
-      const salt = await bcrypt.genSalt();
-      user.salt = salt;
-      user.password = await this.hashPassword(createUserDto.password, salt);
+      user.password = await this.hashPassword(createUserDto.password);
       user.username = createUserDto.username;
 
       const updateResult = await this.usersRepository.update(
@@ -59,7 +57,6 @@ export class AuthService {
 
       const token = await this.jwtService.signAsync({
         email: user.email,
-        password: user.password,
       });
 
       return token;
@@ -68,14 +65,11 @@ export class AuthService {
 
       user.email = createUserDto.email;
       user.username = createUserDto.username;
-      const salt = await bcrypt.genSalt();
-      user.salt = salt;
-      user.password = await this.hashPassword(createUserDto.password, salt);
+      user.password = await this.hashPassword(createUserDto.password);
 
       user = await this.usersRepository.save(user);
       const token = await this.jwtService.signAsync({
         email: user.email,
-        password: user.password,
       });
       return token;
     }
@@ -99,14 +93,14 @@ export class AuthService {
     createdUser = await this.usersRepository.save(createdUser);
 
     delete createdUser.password;
-    delete createdUser.salt;
     delete createdUser.username;
     delete createdUser.id;
 
     return createdUser;
   }
 
-  public async hashPassword(password: string, salt: string): Promise<string> {
-    return await bcrypt.hash(password, salt);
+  public async hashPassword(password: string): Promise<string> {
+    const hash = await argon2.hash(password, { type: argon2.argon2id });
+    return hash;
   }
 }

@@ -35,6 +35,9 @@ export class Room {
   })
   finishedAt: Date = null;
 
+  @Column()
+  isPublished: boolean = false;
+
   @ManyToOne(
     type => User,
     user => user.id,

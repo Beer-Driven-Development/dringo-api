@@ -7,6 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { CreateBeerDto } from 'src/beers/dto/create-beer.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../users/user.decorator';
@@ -33,5 +34,15 @@ export class RoomsController {
   @Get()
   public async findAll() {
     return await this.roomsService.findAll();
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Post(':id/beers')
+  public async addBeer(
+    @Param('id') id: number,
+    @Body() createBeerDto: CreateBeerDto,
+    @GetUser() user: User,
+  ) {
+    return await this.roomsService.addBeer(id, createBeerDto, user);
   }
 }

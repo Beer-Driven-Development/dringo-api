@@ -89,4 +89,22 @@ export class RoomsService {
 
     return beers;
   }
+
+  public async deleteBeer(roomId: number, beerId: number, user: User) {
+    let requester = await this.usersRepository.findOne({ email: user.email });
+    let room = await this.roomsRepository.findOne({
+      where: { id: roomId },
+      relations: ['creator'],
+    });
+
+    if (room === undefined) throw new NotFoundException();
+
+    if (requester.id === room.creator.id) {
+      let beer = await this.beersRepository.findOne({ id: beerId });
+      beer = await this.beersRepository.remove(beer);
+    } else {
+      throw new UnauthorizedException();
+    }
+    return new DeleteResult();
+  }
 }

@@ -51,4 +51,14 @@ export class RoomsController {
   public async findAllBeers(@Param('id') id: number) {
     return await this.roomsService.findAllBeers(id);
   }
+
+  @UseGuards(new JwtAuthGuard())
+  @Delete(':roomId/beers/:beerId')
+  public async deleteBeer(
+    @Param('roomId') roomId: number,
+    @Param('beerId') beerId: number,
+    @GetUser() user,
+  ) {
+    return await this.roomsService.deleteBeer(roomId, beerId, user);
+  }
 }

@@ -76,4 +76,17 @@ export class RoomsService {
       throw new UnauthorizedException();
     }
   }
+
+  public async findAllBeers(id: number) {
+    const beers = await this.beersRepository.find({
+      relations: ['room'],
+      where: {
+        room: {
+          id: id,
+        },
+      },
+    });
+
+    return beers;
+  }
 }

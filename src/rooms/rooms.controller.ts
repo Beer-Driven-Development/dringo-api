@@ -45,4 +45,10 @@ export class RoomsController {
   ) {
     return await this.roomsService.addBeer(id, createBeerDto, user);
   }
+
+  @UseGuards(new JwtAuthGuard())
+  @Get(':id/beers')
+  public async findAllBeers(@Param('id') id: number) {
+    return await this.roomsService.findAllBeers(id);
+  }
 }

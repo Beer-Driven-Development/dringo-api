@@ -8,6 +8,7 @@ import { RoomsModule } from './rooms/rooms.module';
 import { RoomsGateway } from './rooms/rooms.gateway';
 import { CategoriesModule } from './categories/categories.module';
 import { BeersModule } from './beers/beers.module';
+import { RatingsModule } from './ratings/ratings.module';
 import * as ormconfig from './ormconfig';
 
 @Module({
@@ -18,6 +19,7 @@ import * as ormconfig from './ormconfig';
     RoomsModule,
     CategoriesModule,
     BeersModule,
+    RatingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

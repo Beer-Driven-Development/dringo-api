@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Category } from './category.entity';
 import { CreateCategoryDto } from './create-category.dto';
 import { Pivot } from './pivot.entity';
@@ -92,5 +92,29 @@ export class CategoriesService {
     }
 
     return new NotFoundException();
+  }
+
+  public async deleteCategory(roomId: number, pivotId: number, user: User) {
+    const requester = await this.usersRepository.findOne({ email: user.email });
+    const room = await this.roomsRepository.findOne({
+      relations: ['creator'],
+      where: { id: roomId },
+    });
+
+    if (room === undefined) throw new NotFoundException();
+    if (requester.id === room.creator.id) {
+      let existingPivot = await this.pivotsRepository.findOne({
+        where: {
+          id: pivotId,
+        },
+      });
+
+      if (existingPivot === undefined) throw new BadRequestException();
+
+      existingPivot = await this.pivotsRepository.remove(existingPivot);
+    } else {
+      throw new UnauthorizedException();
+    }
+    return new DeleteResult();
   }
 }

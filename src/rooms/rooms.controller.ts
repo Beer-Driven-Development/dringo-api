@@ -85,4 +85,14 @@ export class RoomsController {
   ) {
     return await this.categoriesService.findAll(id, user);
   }
+
+  @UseGuards(new JwtAuthGuard())
+  @Delete(':roomId/categories/:pivotId')
+  public async deleteCategory(
+    @Param('roomId') roomId: number,
+    @Param('pivotId') pivotId: number,
+    @GetUser() user: User,
+  ) {
+    return await this.categoriesService.deleteCategory(roomId, pivotId, user);
+  }
 }

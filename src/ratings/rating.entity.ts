@@ -1,4 +1,5 @@
 import { Beer } from 'src/beers/beer.entity';
+import { Pivot } from 'src/categories/pivot.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -21,4 +22,10 @@ export class Rating {
     user => user.id,
   )
   evaluator: User;
+
+  @ManyToOne(
+    type => Pivot,
+    pivot => pivot.id,
+  )
+  pivot: Pivot;
 }

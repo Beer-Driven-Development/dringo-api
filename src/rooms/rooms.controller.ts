@@ -8,6 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CreateBeerDto } from 'src/beers/dto/create-beer.dto';
+import { CategoriesService } from 'src/categories/categories.service';
+import { CreateCategoryDto } from 'src/categories/create-category.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../users/user.decorator';
@@ -16,7 +18,10 @@ import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
 export class RoomsController {
-  constructor(private roomsService: RoomsService) {}
+  constructor(
+    private roomsService: RoomsService,
+    private categoriesService: CategoriesService,
+  ) {}
 
   @UseGuards(new JwtAuthGuard())
   @Post()
@@ -60,5 +65,15 @@ export class RoomsController {
     @GetUser() user,
   ) {
     return await this.roomsService.deleteBeer(roomId, beerId, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Post(':id/categories')
+  public async addCategory(
+    @Param('id') id: number,
+    @Body() createCategoryDto: CreateCategoryDto,
+    @GetUser() user: User,
+  ) {
+    return await this.categoriesService.add(id, createCategoryDto, user);
   }
 }

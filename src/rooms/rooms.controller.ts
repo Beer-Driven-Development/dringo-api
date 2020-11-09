@@ -76,4 +76,13 @@ export class RoomsController {
   ) {
     return await this.categoriesService.add(id, createCategoryDto, user);
   }
+
+  @UseGuards(new JwtAuthGuard())
+  @Get(':id/categories')
+  public async findAllCategories(
+    @Param('id') id: number,
+    @GetUser() user: User,
+  ) {
+    return await this.categoriesService.findAll(id, user);
+  }
 }

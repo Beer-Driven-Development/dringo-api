@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -31,10 +35,13 @@ export class CategoriesService {
       where: { id: id },
     });
 
+    if (room === undefined) throw new NotFoundException();
     if (requester.id === room.creator.id) {
       const category = await this.categoriesRepository.findOne({
         id: createCategoryDto.id,
       });
+
+      if (category === undefined) throw new NotFoundException();
       let pivot: Pivot = new Pivot();
       pivot.category = category;
       pivot.room = room;

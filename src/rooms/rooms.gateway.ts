@@ -49,14 +49,15 @@ export class RoomsGateway implements OnGatewayInit {
     const currentRoom = await this.roomsRepository.findOne({ id: data[0].id });
     console.log(data);
 
-    if (data.user) this.wsClients.push(client);
-
-    if (currentRoom) {
+    if (currentRoom && currentRoom.passcode === data[0].passcode) {
+      if (data.user) this.wsClients.push(client);
       client.send('joinedRoom');
       // client.join(currentRoom.id.toString());
       this.broadcast(
         `${data.user.username} has joined room ${currentRoom.name}`,
       );
+    } else {
+      client.send('accessDenied');
     }
   }
 

@@ -42,6 +42,12 @@ export class RoomsController {
   }
 
   @UseGuards(new JwtAuthGuard())
+  @Post(':id')
+  public async changeStatus(@Param('id') id: number, @GetUser() user) {
+    return await this.roomsService.changeStatus(id, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
   @Post(':id/beers')
   public async addBeer(
     @Param('id') id: number,

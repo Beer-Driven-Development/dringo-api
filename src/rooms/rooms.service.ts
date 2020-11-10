@@ -29,6 +29,7 @@ export class RoomsService {
     room.passcode = createRoomDto.passcode;
     room.creator = creator;
     room.createdAt = new Date();
+    room.isPublished = false;
 
     room = await this.roomsRepository.save(room);
 
@@ -56,6 +57,25 @@ export class RoomsService {
     const rooms = await this.roomsRepository.find();
 
     return rooms;
+  }
+
+  public async changeStatus(id: number, user: User) {
+    let requester = await this.usersRepository.findOne({ email: user.email });
+    let room = await this.roomsRepository.findOne({
+      where: { id: id },
+      relations: ['creator'],
+    });
+
+    if (room === undefined) throw new NotFoundException();
+
+    if (requester.id === room.creator.id) {
+      room.isPublished = !room.isPublished;
+      room = await this.roomsRepository.save(room);
+    } else {
+      throw new UnauthorizedException();
+    }
+
+    return room;
   }
 
   public async addBeer(id: number, createBeerDto: CreateBeerDto, user: User) {

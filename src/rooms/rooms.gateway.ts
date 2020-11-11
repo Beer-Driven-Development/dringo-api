@@ -62,7 +62,6 @@ export class RoomsGateway
       if (payload.user) this.wsClients.push(client);
       client.send('joinedRoom');
       client.join(roomId);
-      this.logger.log(this.wss.listenerCount);
       this.broadcast(
         `${payload.user.username} has joined room ${currentRoom.name}`,
       );

@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
+
 import { from, Observable } from 'rxjs';
 import { Server, Socket } from 'socket.io';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -19,20 +21,24 @@ import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 
 @WebSocketGateway()
-export class RoomsGateway implements OnGatewayInit {
+export class RoomsGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @InjectRepository(Room) private roomsRepository: Repository<Room>,
   ) {}
+  handleDisconnect(client: any) {
+    return 'Client has disconnected';
+  }
 
   private logger: Logger = new Logger('RoomsGateway');
 
-  afterInit(server: any) {
-    this.logger.log('Initialized!');
+  async afterInit(server: Server) {
+    this.logger.log('Initialized Websocket Server');
   }
   @WebSocketServer() wss: Server;
 
   async handleConnection() {
-    console.log('Someone connected!');
+    return 'connect';
   }
 
   @SubscribeMessage('message')
@@ -40,27 +46,28 @@ export class RoomsGateway implements OnGatewayInit {
     return 'Hello world!';
   }
 
-  // @UseGuards(WsJwtGuard)
+  @UseGuards(WsJwtGuard)
   @SubscribeMessage('joinRoom')
   async handleRoomJoin(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() payload: any,
   ) {
-    const currentRoom = await this.roomsRepository.findOne({ id: data[0].id });
-    console.log(data);
+    const currentRoom = await this.roomsRepository.findOne({
+      id: payload.data.id,
+    });
+    console.log(payload);
 
     const roomId = currentRoom.id.toString();
-    if (currentRoom && currentRoom.passcode === data[0].passcode) {
-      if (data.user) this.wsClients.push(client);
-      // client.send('joinedRoom');
-      await client.join(roomId, function() {
-        client.to(roomId).emit('joinedRoom HEHEHEHHE');
-      });
-      // this.broadcast(
-      //   `${data.user.username} has joined room ${currentRoom.name}`,
-      // );
+    if (currentRoom && currentRoom.passcode === payload.data.passcode) {
+      if (payload.user) this.wsClients.push(client);
+      client.send('joinedRoom');
+      client.join(roomId);
+      this.logger.log(this.wss.listenerCount);
+      this.broadcast(
+        `${payload.user.username} has joined room ${currentRoom.name}`,
+      );
 
-      // client.to(roomId).emit('joinedRoomheheheh', roomId);
+      client.to(roomId).emit('joinedRoom', roomId);
     } else {
       client.send('accessDenied');
     }

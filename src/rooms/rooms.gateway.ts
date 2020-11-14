@@ -65,7 +65,7 @@ export class RoomsGateway
     if (currentRoom && currentRoom.passcode === payload.passcode) {
       if (payload.user) this.wsClients.push(client);
       // client.send('joinedRoom');
-      // client.emit('joinedRoom', 'kurde faja');
+      // client.emit('joinedRoom', 'joinedRoom');
       client.join(roomId);
       // this.broadcast(
       //   `${payload.user.username} has joined room ${currentRoom.name}`,
@@ -74,7 +74,12 @@ export class RoomsGateway
         'joinedRoom',
         `${payload.user.username} has joined room ${currentRoom.name}`,
       );
-      client.to(roomId).emit('joinedRoom', 'na tym polega odpowiedzialnosc');
+      client
+        .to(roomId)
+        .emit(
+          'joinedRoom',
+          `${payload.user.username} has joined room ${currentRoom.name}`,
+        );
     } else {
       client.send('accessDenied');
     }

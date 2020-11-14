@@ -42,8 +42,12 @@ export class RoomsGateway
   }
 
   @SubscribeMessage('message')
-  handleMessage(client: Socket, @MessageBody() payload: string): string {
-    return 'Hello world!';
+  handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: string,
+  ) {
+    client.emit('message', 'message');
+    console.log('message emitted');
   }
 
   @UseGuards(WsJwtGuard)
@@ -53,20 +57,24 @@ export class RoomsGateway
     @MessageBody() payload: any,
   ) {
     const currentRoom = await this.roomsRepository.findOne({
-      id: payload.data.id,
+      id: payload.id,
     });
     console.log(payload);
 
     const roomId = currentRoom.id.toString();
-    if (currentRoom && currentRoom.passcode === payload.data.passcode) {
+    if (currentRoom && currentRoom.passcode === payload.passcode) {
       if (payload.user) this.wsClients.push(client);
-      client.send('joinedRoom');
+      // client.send('joinedRoom');
+      // client.emit('joinedRoom', 'kurde faja');
       client.join(roomId);
+      // this.broadcast(
+      //   `${payload.user.username} has joined room ${currentRoom.name}`,
+      // );
       this.broadcast(
+        'joinedRoom',
         `${payload.user.username} has joined room ${currentRoom.name}`,
       );
-
-      client.to(roomId).emit('joinedRoom', roomId);
+      client.to(roomId).emit('joinedRoom', 'na tym polega odpowiedzialnosc');
     } else {
       client.send('accessDenied');
     }
@@ -75,9 +83,11 @@ export class RoomsGateway
   @SubscribeMessage('leaveRoom')
   async handleRoomLeave(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() payload: any,
   ) {
-    const currentRoom = await this.roomsRepository.findOne({ id: data[0].id });
+    const currentRoom = await this.roomsRepository.findOne({
+      id: payload.id,
+    });
 
     if (currentRoom) {
       // client.join(currentRoom.id.toString());
@@ -86,9 +96,9 @@ export class RoomsGateway
   }
 
   wsClients = [];
-  private broadcast(message: string) {
+  private broadcast(message: string, data: string) {
     for (let c of this.wsClients) {
-      c.send(message);
+      c.emit(message, data);
     }
   }
 }

@@ -85,6 +85,7 @@ export class RoomsGateway
     }
   }
 
+  @UseGuards(WsJwtGuard)
   @SubscribeMessage('leaveRoom')
   async handleRoomLeave(
     @ConnectedSocket() client: Socket,

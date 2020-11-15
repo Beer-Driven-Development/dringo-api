@@ -95,8 +95,14 @@ export class RoomsGateway
     });
 
     if (currentRoom) {
-      // client.join(currentRoom.id.toString());
       client.leave('room');
+
+      client
+        .to(currentRoom.id.toString())
+        .emit(
+          'userLeft',
+          `${payload.user.username} has left room ${currentRoom.name}`,
+        );
     }
   }
 

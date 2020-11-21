@@ -81,7 +81,7 @@ export class RoomsGateway
           `${payload.user.username} has joined room ${currentRoom.name}`,
         );
     } else {
-      client.send('accessDenied');
+      client.emit('accessDenied', 'Access denied');
     }
   }
 

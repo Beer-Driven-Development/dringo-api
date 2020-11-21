@@ -70,6 +70,11 @@ export class CategoriesService {
     }
   }
 
+  public async findAllCategories() {
+    const categories = await this.categoriesRepository.find();
+    return categories;
+  }
+
   public async findAll(id: number, user: User) {
     const requester = await this.usersRepository.findOne({ email: user.email });
     const room = await this.roomsRepository.findOne({

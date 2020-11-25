@@ -44,7 +44,7 @@ export class CategoriesService {
 
       if (category === undefined) throw new NotFoundException();
 
-      const existingPivot = await this.pivotsRepository.find({
+      const existingPivot = await this.pivotsRepository.findOne({
         relations: ['category'],
         where: {
           room: {

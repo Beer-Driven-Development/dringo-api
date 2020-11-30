@@ -20,6 +20,7 @@ import { LoginRequestDto } from './dto/login-request.dto';
 import { REQUEST } from '@nestjs/core';
 import { GetUser } from 'src/users/user.decorator';
 import { LocalAuthGuard } from './local-auth.guard';
+import { IdTokenDto } from './dto/id-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -46,6 +47,11 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   googleAuthRedirect(@Req() req) {
     return this.authService.googleLogin(req);
+  }
+
+  @Post('google')
+  async googleSignIn(@Body() idTokenDto: IdTokenDto): Promise<string> {
+    return await this.authService.findOrCreate(idTokenDto.idToken);
   }
 
   @Get('facebook')

@@ -27,7 +27,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       firstName: name.givenName,
       lastName: name.familyName,
     };
-    const user = await this.authService.findOrCreate(facebookUser);
+    const user = await this.authService.findOrCreate(accessToken);
     const payload = {
       user,
       accessToken,

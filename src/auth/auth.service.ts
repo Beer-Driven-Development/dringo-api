@@ -11,6 +11,8 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import * as argon2 from 'argon2';
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Injectable()
 export class AuthService {
@@ -83,20 +85,38 @@ export class AuthService {
     return req.user;
   }
 
-  public async findOrCreate(profile): Promise<User> {
-    const user = await this.usersRepository.findOne({ email: profile.email });
+  private async verifyIdToken(token: string) {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const email = payload['email'];
+    return email;
+  }
 
-    if (user) return user;
+  public async findOrCreate(token: string): Promise<string> {
+    const email = await this.verifyIdToken(token);
+    const user = await this.usersRepository.findOne({ email });
+
+    if (user) {
+      const accessToken = await this.jwtService.signAsync({
+        email: user.email,
+      });
+      return accessToken;
+    }
 
     let createdUser = new User();
-    createdUser.email = profile.email;
+    createdUser.email = email;
     createdUser = await this.usersRepository.save(createdUser);
 
     delete createdUser.password;
-    delete createdUser.username;
-    delete createdUser.id;
 
-    return createdUser;
+    const accessToken = await this.jwtService.signAsync({
+      email: createdUser.email,
+    });
+
+    return accessToken;
   }
 
   public async hashPassword(password: string): Promise<string> {

@@ -32,9 +32,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       picture: photos[0].value,
       accessToken,
     };
-    const user = await this.authService.findOrCreate(googleUser);
-    delete user.username;
-    delete user.id;
+    const user = await this.authService.findOrCreate(googleUser.accessToken);
 
     const payload = {
       user,

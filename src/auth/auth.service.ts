@@ -119,6 +119,29 @@ export class AuthService {
     return accessToken;
   }
 
+  public async findOrCreateByEmail(email: string): Promise<string> {
+    const user = await this.usersRepository.findOne({ email });
+
+    if (user) {
+      const accessToken = await this.jwtService.signAsync({
+        email: user.email,
+      });
+      return accessToken;
+    }
+
+    let createdUser = new User();
+    createdUser.email = email;
+    createdUser = await this.usersRepository.save(createdUser);
+
+    delete createdUser.password;
+
+    const accessToken = await this.jwtService.signAsync({
+      email: createdUser.email,
+    });
+
+    return accessToken;
+  }
+
   public async hashPassword(password: string): Promise<string> {
     const hash = await argon2.hash(password, { type: argon2.argon2id });
     return hash;

@@ -54,7 +54,9 @@ export class RoomsService {
   }
 
   public async findAll() {
-    const rooms = await this.roomsRepository.find();
+    const rooms = await this.roomsRepository.find({
+      where: { isPublished: true },
+    });
 
     return rooms;
   }

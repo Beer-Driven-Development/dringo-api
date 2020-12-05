@@ -55,7 +55,7 @@ export class RoomsService {
 
   public async findAll() {
     const rooms = await this.roomsRepository.find({
-      where: { isPublished: true },
+      where: { isPublished: true }, relations:["creator"]
     });
 
     return rooms;

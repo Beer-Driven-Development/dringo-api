@@ -21,12 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<User> {
-    const { email } = payload;
+  async validate(payload: any): Promise<User> {
+    const  email = payload.user.email;
     const user = await this.connection
       .getRepository(User)
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
+
       .getOne();
 
     if (!user) {

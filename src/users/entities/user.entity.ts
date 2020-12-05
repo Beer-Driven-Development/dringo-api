@@ -26,12 +26,14 @@ export class User extends BaseEntity {
   username: string;
 
   async validatePassword(password: string): Promise<boolean> {
-    const query = await getRepository(User)
+    const email = this.email;
+    const user = await getRepository(User)
       .createQueryBuilder('user')
+      .where('user.email = :email', {email })
       .addSelect('user.password')
-      .getRawOne();
+      .getOne();
 
-    const userPassword = query['user_password'];
+    const userPassword = user.password;
 
     const isValid = await argon2.verify(userPassword, password);
 

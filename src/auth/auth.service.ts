@@ -59,6 +59,8 @@ export class AuthService {
 
       const token = await this.jwtService.signAsync({
         email: user.email,
+        id: user.id,
+        username: user.username,
       });
 
       return token;
@@ -72,6 +74,8 @@ export class AuthService {
       user = await this.usersRepository.save(user);
       const token = await this.jwtService.signAsync({
         email: user.email,
+        id: user.id,
+        username: user.username,
       });
       return token;
     }

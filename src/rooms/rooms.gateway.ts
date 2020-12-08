@@ -70,10 +70,10 @@ export class RoomsGateway
       // this.broadcast(
       //   `${payload.user.username} has joined room ${currentRoom.name}`,
       // );
-      this.broadcast(
-        'joinedRoom',
-        `${payload.user.username} has joined room ${currentRoom.name}`,
-      );
+      // this.broadcast(
+      //   'joinedRoom',
+      //   `${payload.user.username} has joined room ${currentRoom.name}`,
+      // );
       client
         .to(roomId)
         .emit(

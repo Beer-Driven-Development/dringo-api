@@ -10,7 +10,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-
 import { from, Observable } from 'rxjs';
 import { Server, Socket } from 'socket.io';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -25,12 +24,14 @@ export class RoomsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @InjectRepository(Room) private roomsRepository: Repository<Room>,
+    @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
   handleDisconnect(client: any) {
     return 'Client has disconnected';
   }
 
   private logger: Logger = new Logger('RoomsGateway');
+  connectedUsers = new Map<Room, User[]>();
 
   async afterInit(server: Server) {
     this.logger.log('Initialized Websocket Server');
@@ -50,6 +51,32 @@ export class RoomsGateway
     console.log('message emitted');
   }
 
+  // @UseGuards(WsJwtGuard)
+  @SubscribeMessage('start')
+  async handleStart(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
+    console.log(payload);
+    // let currentRoom = await this.roomsRepository.findOne({
+    //   where: {
+    //     id: payload.id,
+    //     // creator: {
+    //     //   id: payload.user.id,
+    //     // },
+    //   },
+    //   relations: ['creator', 'participants'],
+    // });
+    // currentRoom.startedAt = new Date();
+    let participants = [];
+    let clients = client.adapter.rooms[payload.id];
+
+    // this.wss
+    //   .in(payload.id)
+    //   .clients((error, consumers) => console.log(consumers));
+    console.log(clients);
+  }
+
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('joinRoom')
   async handleRoomJoin(
@@ -63,26 +90,30 @@ export class RoomsGateway
 
     const roomId = currentRoom.id.toString();
     if (currentRoom && currentRoom.passcode === payload.passcode) {
-      if (payload.user) this.wsClients.push(client);
-      // client.send('joinedRoom');
-      // client.emit('joinedRoom', 'joinedRoom');
       client.join(roomId);
-      // this.broadcast(
-      //   `${payload.user.username} has joined room ${currentRoom.name}`,
-      // );
-      // this.broadcast(
-      //   'joinedRoom',
-      //   `${payload.user.username} has joined room ${currentRoom.name}`,
-      // );
-      client
-        .to(roomId)
-        .emit(
-          'joinedRoom',
-          `${payload.user.username} has joined room ${currentRoom.name}`,
-        );
+      if (!this.connectedUsers.has(currentRoom)) {
+        this.connectedUsers.set(currentRoom, []);
+      }
+
+      const user = await this.usersRepository.findOne({
+        email: payload.user.email,
+      });
+      if (!user) {
+        client.emit('accessDenied', 'Access denied');
+      }
+      this.connectedUsers.get(currentRoom).push(user);
+      this.updateUsersList(client, currentRoom);
     } else {
       client.emit('accessDenied', 'Access denied');
     }
+  }
+
+  private updateUsersList(client: Socket, room: Room) {
+    client.to(room.id.toString()).emit('usersList', {
+      room: room,
+      users: this.connectedUsers.get(room),
+    });
+    console.log(this.connectedUsers.get(room));
   }
 
   @UseGuards(WsJwtGuard)
@@ -95,22 +126,20 @@ export class RoomsGateway
       id: payload.id,
     });
 
+    const user = await this.usersRepository.findOne({
+      email: payload.user.email,
+    });
+
     if (currentRoom) {
+      let userList = this.connectedUsers.get(currentRoom);
+      userList = userList.filter(u => u !== user);
+      if (!userList.length) {
+        this.connectedUsers.delete(currentRoom);
+      } else {
+        this.connectedUsers.set(currentRoom, userList);
+        this.updateUsersList(client, currentRoom);
+      }
       client.leave('room');
-
-      client
-        .to(currentRoom.id.toString())
-        .emit(
-          'userLeft',
-          `${payload.user.username} has left room ${currentRoom.name}`,
-        );
-    }
-  }
-
-  wsClients = [];
-  private broadcast(message: string, data: string) {
-    for (let c of this.wsClients) {
-      c.emit(message, data);
     }
   }
 }

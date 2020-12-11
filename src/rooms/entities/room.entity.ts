@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -46,7 +47,7 @@ export class Room {
 
   @OneToMany(
     type => User,
-    user => user.id,
+    user => user.parties,
   )
   participants: User[];
 }

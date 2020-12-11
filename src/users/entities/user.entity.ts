@@ -6,8 +6,10 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   getRepository,
+  ManyToOne,
 } from 'typeorm';
 import * as argon2 from 'argon2';
+import { Room } from '../../rooms/entities/room.entity';
 
 @Entity()
 @Unique(['email', 'username'])
@@ -25,11 +27,17 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   username: string;
 
+  @ManyToOne(
+    type => Room,
+    room => room.participants,
+  )
+  parties: Room[];
+
   async validatePassword(password: string): Promise<boolean> {
     const email = this.email;
     const user = await getRepository(User)
       .createQueryBuilder('user')
-      .where('user.email = :email', {email })
+      .where('user.email = :email', { email })
       .addSelect('user.password')
       .getOne();
 

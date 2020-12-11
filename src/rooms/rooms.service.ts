@@ -29,6 +29,8 @@ export class RoomsService {
     room.passcode = createRoomDto.passcode;
     room.creator = creator;
     room.createdAt = new Date();
+    room.startedAt = new Date(0);
+    room.finishedAt = new Date(0);
     room.isPublished = false;
 
     room = await this.roomsRepository.save(room);
@@ -55,7 +57,8 @@ export class RoomsService {
 
   public async findAll() {
     const rooms = await this.roomsRepository.find({
-      where: { isPublished: true }, relations:["creator"]
+      where: { isPublished: true },
+      relations: ['creator'],
     });
 
     return rooms;

@@ -84,7 +84,10 @@ export class RoomsGateway
     @MessageBody() payload: any,
   ) {
     const currentRoom = await this.roomsRepository.findOne({
-      id: payload.id,
+      where: {
+        id: payload.id,
+      },
+      relations: ['creator', 'participants'],
     });
     console.log(payload);
 

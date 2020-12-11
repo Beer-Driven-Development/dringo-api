@@ -2,6 +2,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -45,9 +47,7 @@ export class Room {
   )
   creator: User;
 
-  @OneToMany(
-    type => User,
-    user => user.parties,
-  )
+  @ManyToMany(type => User)
+  @JoinTable()
   participants: User[];
 }

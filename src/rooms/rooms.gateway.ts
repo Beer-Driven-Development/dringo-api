@@ -137,6 +137,7 @@ export class RoomsGateway
     const roomId = currentRoom.id.toString();
 
     if (currentRoom) {
+      client.leave('room');
       let userList = this.connectedUsers.get(roomId);
       userList = userList.filter(u => u !== user);
       if (!userList.length) {
@@ -145,7 +146,6 @@ export class RoomsGateway
         this.connectedUsers.set(roomId, userList);
         this.updateUsersList(client, roomId);
       }
-      client.leave('room');
     }
   }
 }

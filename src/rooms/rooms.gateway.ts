@@ -31,7 +31,7 @@ export class RoomsGateway
   }
 
   private logger: Logger = new Logger('RoomsGateway');
-  connectedUsers = new Map<Room, User[]>();
+  connectedUsers = new Map<string, User[]>();
 
   async afterInit(server: Server) {
     this.logger.log('Initialized Websocket Server');
@@ -90,12 +90,12 @@ export class RoomsGateway
       relations: ['creator', 'participants'],
     });
     console.log(payload);
-
     const roomId = currentRoom.id.toString();
     if (currentRoom && currentRoom.passcode === payload.passcode) {
       client.join(roomId);
-      if (!this.connectedUsers.has(currentRoom)) {
-        this.connectedUsers.set(currentRoom, []);
+
+      if (!this.connectedUsers.has(roomId)) {
+        this.connectedUsers.set(roomId, []);
       }
 
       const user = await this.usersRepository.findOne({
@@ -104,19 +104,20 @@ export class RoomsGateway
       if (!user) {
         client.emit('accessDenied', 'Access denied');
       }
-      this.connectedUsers.get(currentRoom).push(user);
-      this.updateUsersList(client, currentRoom);
+      this.connectedUsers.get(roomId).push(user);
+      this.updateUsersList(client, roomId);
     } else {
       client.emit('accessDenied', 'Access denied');
     }
   }
 
-  private updateUsersList(client: Socket, room: Room) {
-    this.wss.in(room.id.toString()).emit('usersList', {
-      room: room,
-      users: this.connectedUsers.get(room),
+  private updateUsersList(client: Socket, roomId: string) {
+    this.wss.in(roomId).emit('usersList', {
+      room: roomId,
+      users: this.connectedUsers.get(roomId),
     });
-    console.log(this.connectedUsers.get(room));
+    console.log(roomId);
+    console.log(this.connectedUsers.get(roomId));
   }
 
   @UseGuards(WsJwtGuard)
@@ -133,16 +134,16 @@ export class RoomsGateway
       email: payload.user.email,
     });
 
-    if (currentRoom) {
-      let userList = this.connectedUsers.get(currentRoom);
-      userList = userList.filter(u => u !== user);
-      if (!userList.length) {
-        this.connectedUsers.delete(currentRoom);
-      } else {
-        this.connectedUsers.set(currentRoom, userList);
-        this.updateUsersList(client, currentRoom);
-      }
-      client.leave('room');
-    }
+    // if (currentRoom) {
+    //   let userList = this.connectedUsers.get(currentRoom);
+    //   userList = userList.filter(u => u !== user);
+    //   if (!userList.length) {
+    //     this.connectedUsers.delete(currentRoom);
+    //   } else {
+    //     this.connectedUsers.set(currentRoom, userList);
+    //     this.updateUsersList(client, currentRoom);
+    //   }
+    //   client.leave('room');
+    // }
   }
 }

@@ -31,7 +31,7 @@ export class RoomsGateway
   }
 
   private logger: Logger = new Logger('RoomsGateway');
-  connectedUsers = new Array<Map<string, User[]>>();
+  connectedUsers = new Map<string, User[]>();
 
   async afterInit(server: Server) {
     this.logger.log('Initialized Websocket Server');
@@ -91,13 +91,11 @@ export class RoomsGateway
     });
     console.log(payload);
     const roomId = currentRoom.id.toString();
-
     if (currentRoom && currentRoom.passcode === payload.passcode) {
-      var currentMap = this.connectedUsers.find(map => map.has(roomId));
       client.join(roomId);
 
-      if (!currentMap.has(roomId)) {
-        currentMap.set(roomId, []);
+      if (!this.connectedUsers.has(roomId)) {
+        this.connectedUsers.set(roomId, []);
       }
 
       const user = await this.usersRepository.findOne({
@@ -106,24 +104,21 @@ export class RoomsGateway
       if (!user) {
         client.emit('accessDenied', 'Access denied');
       }
-      currentMap.get(roomId).push(user);
-      this.updateUsersList(client, roomId, currentMap);
+      this.connectedUsers.get(roomId).push(user);
+      this.updateUsersList(client, roomId);
     } else {
       client.emit('accessDenied', 'Access denied');
     }
   }
 
-  private updateUsersList(
-    client: Socket,
-    roomId: string,
-    currentMap: Map<string, User[]>,
-  ) {
+  private updateUsersList(client: Socket, roomId: string) {
     this.wss.in(roomId).emit('usersList', {
       room: roomId,
-      users: currentMap.get(roomId),
+      users: this.connectedUsers.get(roomId),
     });
+    console.log(this.connectedUsers);
     console.log(roomId);
-    console.log(currentMap.get(roomId));
+    console.log(this.connectedUsers.get(roomId));
   }
 
   @UseGuards(WsJwtGuard)
@@ -143,15 +138,14 @@ export class RoomsGateway
     const roomId = currentRoom.id.toString();
 
     if (currentRoom) {
-      var currentMap = this.connectedUsers.find(map => map.has(roomId));
       client.leave('room');
-      let userList = currentMap.get(roomId);
+      let userList = this.connectedUsers.get(roomId);
       userList = userList.filter(u => u.id != user.id);
       if (!userList.length) {
-        currentMap.delete(roomId);
+        this.connectedUsers.delete(roomId);
       } else {
-        currentMap.set(roomId, userList);
-        this.updateUsersList(client, roomId, currentMap);
+        this.connectedUsers.set(roomId, userList);
+        this.updateUsersList(client, roomId);
       }
     }
   }

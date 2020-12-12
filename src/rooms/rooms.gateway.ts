@@ -112,7 +112,7 @@ export class RoomsGateway
   }
 
   private updateUsersList(client: Socket, room: Room) {
-    client.to(room.id.toString()).emit('usersList', {
+    this.wss.in(room.id.toString()).emit('usersList', {
       room: room,
       users: this.connectedUsers.get(room),
     });

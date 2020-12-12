@@ -134,16 +134,18 @@ export class RoomsGateway
       email: payload.user.email,
     });
 
-    // if (currentRoom) {
-    //   let userList = this.connectedUsers.get(currentRoom);
-    //   userList = userList.filter(u => u !== user);
-    //   if (!userList.length) {
-    //     this.connectedUsers.delete(currentRoom);
-    //   } else {
-    //     this.connectedUsers.set(currentRoom, userList);
-    //     this.updateUsersList(client, currentRoom);
-    //   }
-    //   client.leave('room');
-    // }
+    const roomId = currentRoom.id.toString();
+
+    if (currentRoom) {
+      let userList = this.connectedUsers.get(roomId);
+      userList = userList.filter(u => u !== user);
+      if (!userList.length) {
+        this.connectedUsers.delete(roomId);
+      } else {
+        this.connectedUsers.set(roomId, userList);
+        this.updateUsersList(client, roomId);
+      }
+      client.leave('room');
+    }
   }
 }

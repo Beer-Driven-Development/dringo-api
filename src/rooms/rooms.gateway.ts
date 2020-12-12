@@ -139,7 +139,7 @@ export class RoomsGateway
     if (currentRoom) {
       client.leave('room');
       let userList = this.connectedUsers.get(roomId);
-      userList = userList.filter(u => u !== user);
+      userList = userList.filter(u => u.id != user.id);
       if (!userList.length) {
         this.connectedUsers.delete(roomId);
       } else {

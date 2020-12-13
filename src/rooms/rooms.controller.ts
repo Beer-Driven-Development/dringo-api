@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../users/user.decorator';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { StartDto } from './dto/start.dto';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
@@ -27,6 +28,16 @@ export class RoomsController {
   @Post()
   public async create(@Body() createRoomDto: CreateRoomDto, @GetUser() user) {
     return await this.roomsService.create(createRoomDto, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Post(':id/start')
+  public async start(
+    @Param('id') id: number,
+    @Body() startDto: StartDto,
+    @GetUser() user,
+  ) {
+    return await this.roomsService.start(id, startDto, user);
   }
 
   @UseGuards(new JwtAuthGuard())

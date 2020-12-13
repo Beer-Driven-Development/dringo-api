@@ -9,6 +9,7 @@ import { CreateBeerDto } from 'src/beers/dto/create-beer.dto';
 import { DeleteResult, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { StartDto } from './dto/start.dto';
 import { Room } from './entities/room.entity';
 
 @Injectable()
@@ -113,6 +114,35 @@ export class RoomsService {
     });
 
     return beers;
+  }
+
+  public async start(
+    roomId: number,
+    startDto: StartDto,
+    user: User,
+  ): Promise<Room> {
+    let room = await this.roomsRepository.findOne({
+      where: {
+        id: roomId,
+        creator: {
+          id: user.id,
+        },
+      },
+      relations: ['participants', 'creator'],
+    });
+    room.startedAt = new Date();
+    startDto.participants.forEach(async participant => {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: participant.id,
+        },
+      });
+      room.participants.push(user);
+    });
+
+    room = await this.roomsRepository.save(room);
+
+    return room;
   }
 
   public async deleteBeer(roomId: number, beerId: number, user: User) {

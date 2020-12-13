@@ -105,7 +105,9 @@ export class AuthService {
 
     if (user) {
       const accessToken = await this.jwtService.signAsync({
+        id: user.id,
         email: user.email,
+        username: user.username,
       });
       return accessToken;
     }
@@ -117,7 +119,9 @@ export class AuthService {
     delete createdUser.password;
 
     const accessToken = await this.jwtService.signAsync({
+      id: createdUser.id,
       email: createdUser.email,
+      username: createdUser.username,
     });
 
     return accessToken;
@@ -140,7 +144,9 @@ export class AuthService {
     delete createdUser.password;
 
     const accessToken = await this.jwtService.signAsync({
+      id: createdUser.id,
       email: createdUser.email,
+      username: createdUser.username,
     });
 
     return accessToken;

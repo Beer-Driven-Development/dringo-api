@@ -16,6 +16,7 @@ import { GetUser } from '../users/user.decorator';
 import { DegustationsService } from './degustation.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { StartDto } from './dto/start.dto';
+import { VoteDto } from './dto/vote.dto';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
@@ -40,6 +41,16 @@ export class RoomsController {
     @GetUser() user,
   ) {
     return await this.degustationsService.start(id, startDto, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Post(':id/vote')
+  public async vote(
+    @Param('id') roomId: number,
+    @Body() voteDto: VoteDto,
+    @GetUser() user,
+  ) {
+    return await this.degustationsService.vote(roomId, voteDto, user);
   }
 
   @UseGuards(new JwtAuthGuard())

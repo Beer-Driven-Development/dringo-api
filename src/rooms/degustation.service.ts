@@ -7,6 +7,7 @@ import { Pivot } from '../categories/pivot.entity';
 import { Rating } from '../ratings/rating.entity';
 import { User } from '../users/entities/user.entity';
 import { StartDto } from './dto/start.dto';
+import { VoteDto } from './dto/vote.dto';
 import { Room } from './entities/room.entity';
 
 @Injectable()
@@ -77,5 +78,24 @@ export class DegustationsService {
     };
 
     return data;
+  }
+
+  public async vote(
+    roomId: number,
+    voteDto: VoteDto,
+    user: User,
+  ): Promise<Rating> {
+    const beer = await this.beersRepository.findOne({ id: voteDto.beerId });
+    const pivot = await this.pivotsRepository.findOne({ id: voteDto.pivotId });
+
+    let rating = new Rating();
+    rating.score = voteDto.score;
+    rating.evaluator = user;
+    rating.beer = beer;
+    rating.pivot = pivot;
+
+    rating = await this.ratingsRepository.save(rating);
+
+    return rating;
   }
 }

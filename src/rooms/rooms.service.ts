@@ -116,35 +116,6 @@ export class RoomsService {
     return beers;
   }
 
-  public async start(
-    roomId: number,
-    startDto: StartDto,
-    user: User,
-  ): Promise<Room> {
-    let room = await this.roomsRepository.findOne({
-      where: {
-        id: roomId,
-        creator: {
-          id: user.id,
-        },
-      },
-      relations: ['participants', 'creator'],
-    });
-    room.startedAt = new Date();
-    startDto.participants.forEach(async participant => {
-      const user = await this.usersRepository.findOne({
-        where: {
-          id: participant.id,
-        },
-      });
-      room.participants.push(user);
-    });
-
-    room = await this.roomsRepository.save(room);
-
-    return room;
-  }
-
   public async deleteBeer(roomId: number, beerId: number, user: User) {
     let requester = await this.usersRepository.findOne({ email: user.email });
     let room = await this.roomsRepository.findOne({

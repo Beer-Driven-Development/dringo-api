@@ -13,6 +13,7 @@ import { CreateCategoryDto } from 'src/categories/create-category.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../users/user.decorator';
+import { DegustationsService } from './degustation.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { StartDto } from './dto/start.dto';
 import { RoomsService } from './rooms.service';
@@ -22,6 +23,7 @@ export class RoomsController {
   constructor(
     private roomsService: RoomsService,
     private categoriesService: CategoriesService,
+    private degustationsService: DegustationsService,
   ) {}
 
   @UseGuards(new JwtAuthGuard())
@@ -37,7 +39,7 @@ export class RoomsController {
     @Body() startDto: StartDto,
     @GetUser() user,
   ) {
-    return await this.roomsService.start(id, startDto, user);
+    return await this.degustationsService.start(id, startDto, user);
   }
 
   @UseGuards(new JwtAuthGuard())

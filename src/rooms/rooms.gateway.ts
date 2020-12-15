@@ -91,7 +91,8 @@ export class RoomsGateway
     });
     console.log(payload);
     const roomId = currentRoom.id.toString();
-    if (currentRoom && currentRoom.passcode === payload.passcode) {
+    if (currentRoom && currentRoom.passcode == payload.passcode) {
+      client.emit('joinedRoom', roomId);
       client.join(roomId);
 
       if (!this.connectedUsers.has(roomId)) {

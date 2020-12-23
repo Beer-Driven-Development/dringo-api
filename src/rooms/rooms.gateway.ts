@@ -17,6 +17,7 @@ import { WsJwtGuard } from 'src/auth/ws-jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { GetUser } from 'src/users/user.decorator';
 import { Repository } from 'typeorm';
+import { DegustationsService } from './degustation.service';
 import { Room } from './entities/room.entity';
 
 @WebSocketGateway()
@@ -25,6 +26,7 @@ export class RoomsGateway
   constructor(
     @InjectRepository(Room) private roomsRepository: Repository<Room>,
     @InjectRepository(User) private usersRepository: Repository<User>,
+    private degustationsService: DegustationsService,
   ) {}
   handleDisconnect(client: any) {
     return 'Client has disconnected';
@@ -75,6 +77,20 @@ export class RoomsGateway
     //   .in(payload.id)
     //   .clients((error, consumers) => console.log(consumers));
     console.log(clients);
+  }
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('getDegustation')
+  async handleDegustation(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
+    const degustation = await this.degustationsService.getDegustation(
+      payload.user.email,
+      payload.id,
+    );
+    this.wss.in(payload.roomId).emit('degustation', degustation);
+    console.log(degustation);
   }
 
   @UseGuards(WsJwtGuard)

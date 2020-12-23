@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Beer } from '../beers/beer.entity';
@@ -51,6 +51,20 @@ export class DegustationsService {
 
     const data = await this.getData(room);
     return data;
+  }
+
+  public async getDegustation(email: string, roomId: any) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id: roomId,
+      },
+      relations: ['participants'],
+    });
+
+    if (!room.participants.find(participant => participant.email == email)) {
+      throw UnauthorizedException;
+    }
+    return await this.getData(room);
   }
 
   private async getData(room: Room) {

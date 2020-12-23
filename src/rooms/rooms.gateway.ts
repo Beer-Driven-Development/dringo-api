@@ -89,7 +89,7 @@ export class RoomsGateway
       payload.user.email,
       payload.id,
     );
-    this.wss.in(payload.roomId).emit('degustation', degustation);
+    this.wss.in(payload.id).emit('degustation', degustation);
     console.log(degustation);
   }
 

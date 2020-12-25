@@ -44,6 +44,12 @@ export class RoomsController {
   }
 
   @UseGuards(new JwtAuthGuard())
+  @Post(':id/degustation')
+  public async degustation(@Param('id') id: number, @GetUser() user) {
+    return await this.degustationsService.getDegustation(id, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
   @Post(':id/vote')
   public async vote(
     @Param('id') roomId: number,

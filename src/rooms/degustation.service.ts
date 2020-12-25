@@ -53,15 +53,17 @@ export class DegustationsService {
     return data;
   }
 
-  public async getDegustation(email: string, roomId: any) {
+  public async getDegustation(id, user: User) {
     const room = await this.roomsRepository.findOne({
       where: {
-        id: roomId,
+        id: id,
       },
       relations: ['participants'],
     });
 
-    if (!room.participants.find(participant => participant.email == email)) {
+    if (
+      !room.participants.find(participant => participant.email == user.email)
+    ) {
       throw UnauthorizedException;
     }
     return await this.getData(room);
@@ -75,6 +77,7 @@ export class DegustationsService {
         },
       },
       relations: ['room'],
+      order: { id: 'ASC' },
     });
 
     const pivots = await this.pivotsRepository.find({
@@ -84,6 +87,9 @@ export class DegustationsService {
         },
       },
       relations: ['room', 'category'],
+      order: {
+        id: 'ASC',
+      },
     });
 
     const data = {
@@ -101,9 +107,22 @@ export class DegustationsService {
   ): Promise<Rating> {
     const beer = await this.beersRepository.findOne({ id: voteDto.beerId });
     const pivot = await this.pivotsRepository.findOne({ id: voteDto.pivotId });
+    const existingRating = await this.ratingsRepository.findOne({
+      pivot: {
+        id: voteDto.pivotId,
+      },
+      beer: {
+        id: voteDto.beerId,
+      },
+      evaluator: {
+        id: user.id,
+      },
+    });
+    let rating: Rating;
+    existingRating ? (rating = existingRating) : (rating = new Rating());
 
-    let rating = new Rating();
     rating.score = voteDto.score;
+
     rating.evaluator = user;
     rating.beer = beer;
     rating.pivot = pivot;

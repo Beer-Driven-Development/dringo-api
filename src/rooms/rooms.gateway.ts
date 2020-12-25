@@ -85,12 +85,7 @@ export class RoomsGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
   ) {
-    const degustation = await this.degustationsService.getDegustation(
-      payload.user.email,
-      payload.id,
-    );
-    this.wss.in(payload.id).emit('degustation', degustation);
-    console.log(degustation);
+    this.wss.in(payload.id).emit('degustation', 'degustation');
   }
 
   @UseGuards(WsJwtGuard)

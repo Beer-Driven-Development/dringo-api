@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../users/user.decorator';
 import { DegustationsService } from './degustation.service';
+import { BeerDto } from './dto/beer.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { StartDto } from './dto/start.dto';
 import { VoteDto } from './dto/vote.dto';
@@ -47,6 +48,18 @@ export class RoomsController {
   @Post(':id/degustation')
   public async degustation(@Param('id') id: number, @GetUser() user) {
     return await this.degustationsService.getDegustation(id, user);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Post(':id/first')
+  public async first(@Param('id') id: number) {
+    return await this.degustationsService.getFirstBeerData(id);
+  }
+
+  @UseGuards(new JwtAuthGuard())
+  @Post(':id/next')
+  public async next(@Param('id') id: number, @Body() beerDto: BeerDto) {
+    return await this.degustationsService.getNextBeerData(id, beerDto.beerId);
   }
 
   @UseGuards(new JwtAuthGuard())

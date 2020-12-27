@@ -85,7 +85,23 @@ export class RoomsGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
   ) {
-    this.wss.in(payload.id).emit('degustation', 'degustation');
+    const data = await this.degustationsService.getFirstBeerData(payload.id);
+    this.wss.in(payload.id).emit('first', data);
+    console.log(data);
+  }
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('next')
+  async handleNextBeer(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
+    const data = await this.degustationsService.getNextBeerData(
+      payload.roomId,
+      payload.beerId,
+    );
+    this.wss.in(payload.roomId).emit('next', data);
+    console.log(data);
   }
 
   @UseGuards(WsJwtGuard)

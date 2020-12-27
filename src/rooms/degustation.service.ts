@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Beer } from '../beers/beer.entity';
@@ -94,6 +98,89 @@ export class DegustationsService {
 
     const data = {
       beers: beers,
+      pivots: pivots,
+    };
+
+    return data;
+  }
+
+  public async getFirstBeerData(roomId) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id: roomId,
+      },
+    });
+
+    const beers = await this.beersRepository.find({
+      where: {
+        room: {
+          id: room.id,
+        },
+      },
+      relations: ['room'],
+      order: { id: 'ASC' },
+    });
+
+    const beer = beers[0];
+
+    const pivots = await this.pivotsRepository.find({
+      where: {
+        room: {
+          id: room.id,
+        },
+      },
+      relations: ['room', 'category'],
+      order: {
+        id: 'ASC',
+      },
+    });
+
+    const data = {
+      beer: beer,
+      pivots: pivots,
+    };
+
+    return data;
+  }
+
+  public async getNextBeerData(roomId, beerId) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id: roomId,
+      },
+    });
+
+    const beers = await this.beersRepository.find({
+      where: {
+        room: {
+          id: room.id,
+        },
+      },
+      relations: ['room'],
+      order: { id: 'ASC' },
+    });
+
+    const previousBeerIndex = beers.findIndex(beer => beer.id == beerId);
+    const lastIndex = beers.length - 1;
+    if (lastIndex == previousBeerIndex) {
+      return new BadRequestException();
+    }
+    const nextBeer = beers[previousBeerIndex + 1];
+
+    const pivots = await this.pivotsRepository.find({
+      where: {
+        room: {
+          id: room.id,
+        },
+      },
+      relations: ['room', 'category'],
+      order: {
+        id: 'ASC',
+      },
+    });
+
+    const data = {
+      beer: nextBeer,
       pivots: pivots,
     };
 

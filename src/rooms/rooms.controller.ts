@@ -144,4 +144,10 @@ export class RoomsController {
   ) {
     return await this.categoriesService.deleteCategory(roomId, pivotId, user);
   }
+
+  @UseGuards(new JwtAuthGuard())
+  @Get(':id/stats')
+  public async getStats(@Param('id') id: number, @GetUser() user: User) {
+    return await this.degustationsService.summary(id, user);
+  }
 }

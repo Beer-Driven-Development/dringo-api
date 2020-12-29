@@ -218,4 +218,57 @@ export class DegustationsService {
 
     return rating;
   }
+
+  public async summary(roomId: any, user: User) {
+    let ratings = await this.ratingsRepository.find({
+      where: {
+        evaluator: {
+          id: user.id,
+        },
+      },
+      relations: ['beer', 'evaluator', 'pivot', 'pivot.room'],
+    });
+
+    ratings = ratings.filter(rating => rating.pivot.room.id == roomId);
+
+    let beers = await this.beersRepository.find({
+      where: {
+        room: {
+          id: roomId,
+        },
+      },
+    });
+
+    const pivots = await this.pivotsRepository.find({
+      where: {
+        room: {
+          id: roomId,
+        },
+      },
+    });
+    let weightSum = 0;
+    let avgs = [];
+    let superBeers = [];
+    pivots.forEach(pivot => {
+      weightSum += pivot.weight;
+    });
+
+    ratings.forEach(rating => {
+      superBeers.push(rating.beer);
+    });
+
+    superBeers.forEach(beer => {
+      let avg = 0.0;
+      let numerator = 0;
+      ratings.forEach(xD => {
+        numerator += xD.score * xD.pivot.weight;
+      });
+      avg = numerator / weightSum;
+      avgs.push({
+        beer: beer,
+        avg: avg,
+      });
+    });
+    return avgs;
+  }
 }

@@ -257,16 +257,27 @@ export class DegustationsService {
       superBeers.push(rating.beer);
     });
 
-    superBeers.forEach(beer => {
+    let uniqueBeers = [];
+    superBeers.forEach(function(item) {
+      var i = uniqueBeers.findIndex(x => x.name == item.name);
+      if (i <= -1) {
+        uniqueBeers.push(item);
+      }
+    });
+
+    uniqueBeers.forEach(beer => {
       let avg = 0.0;
       let numerator = 0;
-      ratings.forEach(xD => {
+
+      let xd = ratings.filter(rating => rating.beer.id == beer.id);
+
+      xd.forEach(xD => {
         numerator += xD.score * xD.pivot.weight;
       });
       avg = numerator / weightSum;
       avgs.push({
         beer: beer,
-        avg: avg,
+        avg: avg.toFixed(2),
       });
     });
     return avgs;

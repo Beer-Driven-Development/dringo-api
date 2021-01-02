@@ -12,7 +12,8 @@ import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import * as argon2 from 'argon2';
 import { OAuth2Client } from 'google-auth-library';
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const facebookClient = new OAuth2Client(process.env.FACEBOOK_APP_ID);
 
 @Injectable()
 export class AuthService {
@@ -89,18 +90,28 @@ export class AuthService {
     return req.user;
   }
 
-  private async verifyIdToken(token: string) {
-    const ticket = await client.verifyIdToken({
+  // private async verifyGoogleToken(token: string) {
+  //   const ticket = await googleClient.verifyIdToken({
+  //     idToken: token,
+  //     audience: process.env.GOOGLE_CLIENT_ID,
+  //   });
+  //   const payload = ticket.getPayload();
+  //   const email = payload['email'];
+  //   return email;
+  // }
+
+  private async verifyFacebookToken(token: string) {
+    const ticket = await facebookClient.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: process.env.FACEBOOK_APP_ID,
     });
     const payload = ticket.getPayload();
     const email = payload['email'];
     return email;
   }
 
-  public async findOrCreate(token: string): Promise<string> {
-    const email = await this.verifyIdToken(token);
+  public async findOrCreate(googleUser): Promise<string> {
+    const email = googleUser.email;
     const user = await this.usersRepository.findOne({ email });
 
     if (user) {
@@ -127,7 +138,8 @@ export class AuthService {
     return accessToken;
   }
 
-  public async findOrCreateByEmail(email: string): Promise<string> {
+  public async findOrCreateByEmail(facebookUser): Promise<string> {
+    const email = facebookUser.email;
     const user = await this.usersRepository.findOne({ email });
 
     if (user) {

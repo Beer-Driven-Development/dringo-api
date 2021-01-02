@@ -9,7 +9,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     super({
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
-      callbackURL: 'https://dringo.herokuapp.com/auth/facebook/redirect',
+      callbackURL: 'http://localhost:3000/auth/facebook/redirect',
       scope: 'email',
       profileFields: ['emails', 'name'],
     });
@@ -27,7 +27,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       firstName: name.givenName,
       lastName: name.familyName,
     };
-    const user = await this.authService.findOrCreate(accessToken);
+    const user = await this.authService.findOrCreateByEmail(facebookUser);
     const payload = {
       user,
       accessToken,

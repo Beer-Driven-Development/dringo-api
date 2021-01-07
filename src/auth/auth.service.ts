@@ -139,7 +139,7 @@ export class AuthService {
   }
 
   public async findOrCreateByEmail(facebookUser): Promise<string> {
-    const email = facebookUser.email;
+    const email = facebookUser;
     const user = await this.usersRepository.findOne({ email });
 
     if (user) {

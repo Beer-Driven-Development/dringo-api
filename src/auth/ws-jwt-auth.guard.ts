@@ -27,7 +27,7 @@ export class WsJwtGuard implements CanActivate {
 
     const authToken = payload.token;
     const credentials: any = <object>jwt.verify(authToken, process.env.SECRET);
-    const email = credentials.user.email;
+    const email = credentials.email;
     const user = await this.connection
       .getRepository(User)
       .createQueryBuilder('user')

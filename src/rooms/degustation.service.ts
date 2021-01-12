@@ -163,7 +163,10 @@ export class DegustationsService {
     const previousBeerIndex = beers.findIndex(beer => beer.id == beerId);
     const lastIndex = beers.length - 1;
     if (lastIndex == previousBeerIndex) {
-      return new BadRequestException();
+      return {
+        beer: null,
+        pivots: [],
+      };
     }
     const nextBeer = beers[previousBeerIndex + 1];
 
